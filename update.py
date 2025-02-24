@@ -28,7 +28,8 @@ def check_for_updates():
                     file.write(response.text)
                 print("glist.json dosyası oluşturuldu.")
         else:
-            print("glist.json dosyası indirilirken bir hata oluştu.")
+            print(f"glist.json dosyası indirilirken bir hata oluştu. HTTP Status Code: {response.status_code}")
+            print(f"Hata Mesajı: {response.text}")
     except Exception as e:
         print(f"Hata: {e}")
 
