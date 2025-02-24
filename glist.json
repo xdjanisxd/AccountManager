@@ -143,6 +143,62 @@
                 "Platform": "Steam",
                 "LC": ""
             }
+        ],
+        "TLOU1 - COD - Unchurted": [
+            {
+                "ID": "jaumecamps",
+                "PW": "M7CF589SEZ29",
+                "Platform": "Steam",
+                "LC": ""
+            }
+        ],
+        "Elden Ring - Spider-Man 2 ": [
+            {
+                "ID": "thegeekout",
+                "PW": "6ZFSA22CDES3147",
+                "Platform": "Steam",
+                "LC": ""
+            }
+        ],
+        "Sherlock Holmes Sherlock Holmes The Awakened": [
+            {
+                "ID": "sherlock2362",
+                "PW": "a3Io8ORotrv5FOS",
+                "Platform": "Steam",
+                "LC": ""
+            }
+        ],
+        "Lies Of P Deluxe Edition": [
+            {
+                "ID": "lies563",
+                "PW": "tSASiXuk5RvO4st",
+                "Platform": "Steam",
+                "LC": ""
+            }
+        ],
+        "Dark Souls 3\n": [
+            {
+                "ID": "souls3sentinus",
+                "PW": "E14EJL3GguLsAfyP",
+                "Platform": "Steam",
+                "LC": ""
+            }
+        ],
+        "DOOM ETERNAL\n": [
+            {
+                "ID": "thebusitem",
+                "PW": "XE70nQD5lqWQ24Jzd",
+                "Platform": "Steam",
+                "LC": ""
+            }
+        ],
+        "Elden Ring Shadow of the Erdtree Deluxe": [
+            {
+                "ID": "eldenringitem31",
+                "PW": "zcq8mA:T",
+                "Platform": "Steam",
+                "LC": ""
+            }
         ]
     }
 }
