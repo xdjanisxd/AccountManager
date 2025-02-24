@@ -1,54 +1,36 @@
 import requests
-import zipfile
+import json
 import os
-import sys
-import subprocess
 
 def check_for_updates():
-    repo_url = "https://api.github.com/repos/xdjanisxd/AccountManager/releases/latest"
+    # GitHub'daki glist.json dosyasının raw URL'si
+    glist_url = "https://raw.githubusercontent.com/xdjanisxd/AccountManager/main/glist.json"
+    
     try:
-        response = requests.get(repo_url)
+        # GitHub'dan glist.json dosyasını indir
+        response = requests.get(glist_url)
         if response.status_code == 200:
-            latest_release = response.json()
-            latest_version = latest_release['tag_name']
-            
-            # Mevcut sürümü bir dosyadan okuyun veya sabit bir değer olarak tanımlayın
-            current_version = "v.3172"  # Örnek olarak
-            
-            if latest_version != current_version:
-                print(f"Yeni sürüm bulundu: {latest_version}")
-                update_program(latest_release['zipball_url'])
+            # İndirilen içeriği mevcut glist.json dosyasıyla karşılaştır
+            if os.path.exists("glist.json"):
+                with open("glist.json", "r", encoding="utf-8") as file:
+                    current_content = file.read()
+                
+                if current_content != response.text:
+                    # Dosya güncel değilse, güncelle
+                    with open("glist.json", "w", encoding="utf-8") as file:
+                        file.write(response.text)
+                    print("glist.json dosyası güncellendi.")
+                else:
+                    print("glist.json dosyası zaten güncel.")
             else:
-                print("Program güncel.")
+                # glist.json dosyası yoksa, oluştur
+                with open("glist.json", "w", encoding="utf-8") as file:
+                    file.write(response.text)
+                print("glist.json dosyası oluşturuldu.")
         else:
-            print("Güncelleme kontrol edilirken bir hata oluştu.")
+            print("glist.json dosyası indirilirken bir hata oluştu.")
     except Exception as e:
         print(f"Hata: {e}")
-
-def update_program(download_url):
-    print("Güncelleme indiriliyor...")
-    try:
-        response = requests.get(download_url)
-        with open("update.zip", "wb") as file:
-            file.write(response.content)
-        
-        print("Güncelleme indirildi. Yükleniyor...")
-        with zipfile.ZipFile("update.zip", 'r') as zip_ref:
-            zip_ref.extractall("temp_update")
-        
-        # Güncelleme dosyalarını ana dizine taşıyın
-        for root, dirs, files in os.walk("temp_update"):
-            for file in files:
-                src_path = os.path.join(root, file)
-                dest_path = os.path.join(".", os.path.relpath(src_path, "temp_update"))
-                os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-                os.replace(src_path, dest_path)
-        
-        print("Güncelleme tamamlandı. Programı yeniden başlatın.")
-        subprocess.Popen([sys.executable, "main.py"])  # Programı yeniden başlatın
-        sys.exit()
-    except Exception as e:
-        print(f"Güncelleme sırasında bir hata oluştu: {e}")
 
 if __name__ == "__main__":
     check_for_updates()
