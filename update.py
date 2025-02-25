@@ -1,35 +1,34 @@
 import requests
-import json
-import os
+from cryptography.fernet import Fernet
+
+def decrypt_file(encrypted_file_path, key_path, decrypted_file_path):
+
+    with open(key_path, "rb") as key_file:
+        key = key_file.read()
+    
+    cipher_suite = Fernet(key)
+
+    with open(encrypted_file_path, "rb") as file:
+        encrypted_data = file.read()
+
+    decrypted_data = cipher_suite.decrypt(encrypted_data)
+
+    with open(decrypted_file_path, "wb") as file:
+        file.write(decrypted_data)
 
 def check_for_updates():
-    # GitHub'daki glist.json dosyasının raw URL'si
-    glist_url = "https://raw.githubusercontent.com/xdjanisxd/AccountManager/main/glist.json"
+    encrypted_file_url = "https://raw.githubusercontent.com/xdjanisxd/AccountManager/main/glist_encrypted.json"
     
     try:
-        # GitHub'dan glist.json dosyasını indir
-        response = requests.get(glist_url)
+        response = requests.get(encrypted_file_url)
         if response.status_code == 200:
-            # İndirilen içeriği mevcut glist.json dosyasıyla karşılaştır
-            if os.path.exists("glist.json"):
-                with open("glist.json", "r", encoding="utf-8") as file:
-                    current_content = file.read()
-                
-                if current_content != response.text:
-                    # Dosya güncel değilse, güncelle
-                    with open("glist.json", "w", encoding="utf-8") as file:
-                        file.write(response.text)
-                    print("glist.json dosyası güncellendi.")
-                else:
-                    print("glist.json dosyası zaten güncel.")
-            else:
-                # glist.json dosyası yoksa, oluştur
-                with open("glist.json", "w", encoding="utf-8") as file:
-                    file.write(response.text)
-                print("glist.json dosyası oluşturuldu.")
+            with open("glist_encrypted.json", "wb") as file:
+                file.write(response.content)
+            
+            decrypt_file("glist_encrypted.json", "secret.key", "glist.json")
+            print("glist.json updated.")
         else:
-            print(f"glist.json dosyası indirilirken bir hata oluştu. HTTP Status Code: {response.status_code}")
-            print(f"Hata Mesajı: {response.text}")
+            print(f"An error occured while downloading encrypted file. HTTP Status Code: {response.status_code}")
     except Exception as e:
         print(f"Hata: {e}")
 
