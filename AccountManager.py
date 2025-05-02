@@ -4,14 +4,26 @@ import os
 from CTkMessagebox import CTkMessagebox
 from CTkMenuBar import *
 from customtkinter import filedialog
-
-
-#TESTSETSTETSTEST
 from update import check_for_updates
 
 
 check_for_updates()
 
+#Merging Glist Files
+def mergeFiles():
+    with open("glist.json",'r') as constFile:
+        uploadedList = json.load(constFile)
+
+    with open("local.json","r") as localFile:
+        localList = json.load(localFile)
+
+    for game,accounts in localList['games'].items():
+        if game in uploadedList['games']:
+            uploadedList['games'][game].extend(accounts)
+        else:
+            uploadedList['games'][game] = accounts
+    with open ("merged.json",'w') as finalFile:
+        json.dump(uploadedList,finalFile,indent=4)
 
 #Root Configs
 root = customtkinter.CTk()
@@ -24,35 +36,32 @@ def clear():
     for ele in root.winfo_children():
         ele.destroy()
 
-def refreshCombo():
-    selectionPage()
-
 def gameComboBoxGameGet():
     global gameValue
-    with open("glist.json", "r") as jsonFile:
+    with open("merged.json", "r") as jsonFile:
         data = json.load(jsonFile)
     gameValue = list(data["games"].keys())
 
 def menuBar():
-    menu_bar = customtkinter.CTkFrame(root, fg_color="gray20", height=40)
-    menu_bar.grid(row=0, column=0, columnspan=4, sticky="ew")
+    menuBar = customtkinter.CTkFrame(root, fg_color="gray20", height=40)
+    menuBar.grid(row=0, column=0, columnspan=4, sticky="ew")
 
-    btn_yeni = customtkinter.CTkButton(menu_bar, text="Selection Page", command=selectionPage, fg_color="gray30", hover_color="gray50")
-    btn_yeni.grid(row=0, column=0, padx=5, pady=5)
+    btnSelection = customtkinter.CTkButton(menuBar, text="Selection Page", command=selectionPage, fg_color="gray30", hover_color="gray50")
+    btnSelection.grid(row=0, column=0, padx=5, pady=5)
 
-    btn_kaydet = customtkinter.CTkButton(menu_bar, text="New", command=gameAddPage, fg_color="gray30", hover_color="gray50")
-    btn_kaydet.grid(row=0, column=1, padx=5, pady=5)
+    btnAdd = customtkinter.CTkButton(menuBar, text="New", command=gameAddPage, fg_color="gray30", hover_color="gray50")
+    btnAdd.grid(row=0, column=1, padx=5, pady=5)
 
-    btn_hakkinda = customtkinter.CTkButton(menu_bar, text="Location", command=locationPage, fg_color="gray30", hover_color="gray50")
-    btn_hakkinda.grid(row=0, column=2, padx=5, pady=5)
+    btnLocation = customtkinter.CTkButton(menuBar, text="Location", command=locationPage, fg_color="gray30", hover_color="gray50")
+    btnLocation.grid(row=0, column=2, padx=5, pady=5)
 
-    btn_cikis = customtkinter.CTkButton(menu_bar, text="Remove", command=removePage, fg_color="gray30", hover_color="gray50")
-    btn_cikis.grid(row=0, column=3, padx=5, pady=5)
+    btnRemove = customtkinter.CTkButton(menuBar, text="Remove", command=removePage, fg_color="gray30", hover_color="gray50")
+    btnRemove.grid(row=0, column=3, padx=5, pady=5)
 
 def selectionPage():
-    
+    mergeFiles()
     def getInfo(choice):
-        with open('glist.json','r') as jsonFile:
+        with open('merged.json','r') as jsonFile:
             data = json.load(jsonFile)
             gameID = data["games"][choice][0]["ID"]
             gamePW = data["games"][choice][0]["PW"]
@@ -76,7 +85,7 @@ def selectionPage():
     def startGame():
         game = comboBox.get()
         if game != "Choose a Game":
-            with open('glist.json','r') as files:
+            with open('merged.json','r') as files:
                 data = json.load(files)
                 location = data['games'][game][0]['LC']
                 if (location != ""):
@@ -133,12 +142,12 @@ def gameAddPage():
             CTkMessagebox(title="Error",message="Enter full information about game!",icon="warning")
         else:
 
-            mainfile = open('glist.json')
+            mainfile = open('local.json')
             data = json.load(mainfile)
 
             data["games"][name] = [{"ID":userID,"PW":userPW,"Platform":gamePlatform,"LC":""}]
 
-            with open('glist.json','w') as jsonfile:
+            with open('local.json','w') as jsonfile:
                 json.dump(data,jsonfile,
                         indent=4,
                         separators=(',',': '))
@@ -193,12 +202,12 @@ def locationPage():
                 CTkMessagebox(title="Error",message="You need to choose location also.",icon="warning")
 
             else:
-                with open('glist.json','r') as files:
+                with open('merged.json','r') as files:
                     data = json.load(files)
                 #game  = combobox.get()
                 data["games"][game][0]['LC'] = fileLocation
 
-                with open('glist.json','w') as files:
+                with open('merged.json','w') as files:
                     json.dump(data,files,indent=2)
                 CTkMessagebox(title="Successful!",message="Location replaced successfully!",icon="check")
         else:CTkMessagebox(title="Error",message="Choose a game to replace location.",icon= 'warning')
@@ -243,26 +252,26 @@ def removePage():
             if (ans == "Yes"):
  
                 try:
-                    with open('glist.json', 'r') as file:
+                    with open('local.json', 'r') as file:
                         data = json.load(file)
 
                     if gameName in data["games"]:
                         del data["games"][gameName]
 
-                        with open('glist.json', 'w') as file:
+                        with open('local.json', 'w') as file:
                             json.dump(data, file, indent=4)
                         CTkMessagebox(title="Successful",message=f"{gameName} removed successfully.",icon="check")
                     else:
-                        CTkMessagebox(title="Error,",message=f"{gameName} is not in library.",icon="warning")
+                        CTkMessagebox(title="Error,",message=f"{gameName} is not able to remove.",icon="warning")
 
                     gameComboBoxGameGet()
                     gameToRemove['values'] = gameValue
                     gameToRemove.set("Choose a Game To Remove")
 
                 except FileNotFoundError:
-                    print("One or both of the files (glist.json or games.txt) couldn't be found.")
+                    print("One or both of the files (local.json) couldn't be found.")
                 except json.JSONDecodeError:
-                    print("glist.json file is broken.")
+                    print("local.json file is broken.")
             else:pass
         else:
             CTkMessagebox(title="Error",message="Choose a game first to remove.",icon='warning')
