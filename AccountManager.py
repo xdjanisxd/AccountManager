@@ -11,6 +11,16 @@ check_for_updates()
 
 #Merging Glist Files
 def mergeFiles():
+    
+    #Check if local.json and glist.json exists
+    if not os.path.exists("local.json"):
+        with open("local.json", "w") as localFile:
+            json.dump({"games": {}}, localFile, indent=4)
+
+    if not os.path.exists("glist.json"):
+        with open("glist.json", "w") as constFile:
+            json.dump({"games": {}}, constFile, indent=4)
+
     with open("glist.json",'r') as constFile:
         uploadedList = json.load(constFile)
 

@@ -1,3 +1,4 @@
+import os
 import requests
 from cryptography.fernet import Fernet
 
@@ -24,9 +25,15 @@ def check_for_updates():
         if response.status_code == 200:
             with open("glist_encrypted.json", "wb") as file:
                 file.write(response.content)
-            
-            decrypt_file("glist_encrypted.json", "secret.key", "glist.json")
-            print("glist.json updated.")
+
+            if os.path.exists("glist.json"):
+                decrypt_file("glist_encrypted.json", "secret.key", "glist.json")
+                print("glist.json updated.")
+            else:
+                with open("glist.json", "w") as file:
+                    decrypt_file("glist_encrypted.json", "secret.key", "glist.json")
+                    print("glist.json created and updated.")
+                                    
         else:
             print(f"An error occured while downloading encrypted file. HTTP Status Code: {response.status_code}")
     except Exception as e:
