@@ -6,21 +6,17 @@ from CTkMenuBar import *
 from customtkinter import filedialog
 from update import check_for_updates
 
-
+#Check if there is local.jsonfile, if not create one
+if not os.path.exists("local.json"):
+    with open("local.json", "w") as file:
+        json.dump({"games": {}}, file, indent=4)
+        
 check_for_updates()
+
 
 #Merging Glist Files
 def mergeFiles():
     
-    #Check if local.json and glist.json exists
-    if not os.path.exists("local.json"):
-        with open("local.json", "w") as localFile:
-            json.dump({"games": {}}, localFile, indent=4)
-
-    if not os.path.exists("glist.json"):
-        with open("glist.json", "w") as constFile:
-            json.dump({"games": {}}, constFile, indent=4)
-
     with open("glist.json",'r') as constFile:
         uploadedList = json.load(constFile)
 
