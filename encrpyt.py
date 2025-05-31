@@ -14,4 +14,4 @@ with open("glist_encrypted.json", "wb") as file:
 with open("secret.key", "wb") as key_file:
     key_file.write(key)
 
-print("glist.json decrypted and saved as glist_encrypted.json.")
+print("glist.json encrypted and saved as glist_encrypted.json.")
