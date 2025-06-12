@@ -11,6 +11,11 @@ if not os.path.exists("local.json"):
     with open("local.json", "w") as file:
         json.dump({"games": {}}, file, indent=4)
         
+#Check if there is glist.json file, if not create one
+if not os.path.exists("glist.json"):
+    with open("glist.json", "w") as file:
+        json.dump({"games": {}}, file, indent=4)
+        
 check_for_updates()
 
 
