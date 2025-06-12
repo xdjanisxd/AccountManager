@@ -1,40 +1,47 @@
+
 import customtkinter
 import json
-import os 
+import os
+import sys
 from CTkMessagebox import CTkMessagebox
 from CTkMenuBar import *
 from customtkinter import filedialog
 from update import check_for_updates
 
-#Check if there is local.jsonfile, if not create one
-if not os.path.exists("local.json"):
-    with open("local.json", "w") as file:
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+APPDATA_DIR = os.path.join(os.getenv("APPDATA"), "AccountManager")
+os.makedirs(APPDATA_DIR, exist_ok=True)
+
+LOCAL_JSON = os.path.join(APPDATA_DIR, "local.json")
+GLIST_JSON = os.path.join(APPDATA_DIR, "glist.json")
+MERGED_JSON = os.path.join(APPDATA_DIR, "merged.json")
+
+if not os.path.exists(LOCAL_JSON):
+    with open(LOCAL_JSON, "w") as file:
         json.dump({"games": {}}, file, indent=4)
-        
-#Check if there is glist.json file, if not create one
-if not os.path.exists("glist.json"):
-    with open("glist.json", "w") as file:
+
+if not os.path.exists(GLIST_JSON):
+    with open(GLIST_JSON, "w") as file:
         json.dump({"games": {}}, file, indent=4)
-        
+
 check_for_updates()
 
-
-#Merging Glist Files
 def mergeFiles():
-    
-    with open("glist.json",'r') as constFile:
+    with open(GLIST_JSON, 'r') as constFile:
         uploadedList = json.load(constFile)
-
-    with open("local.json","r") as localFile:
+    with open(LOCAL_JSON, "r") as localFile:
         localList = json.load(localFile)
-
-    for game,accounts in localList['games'].items():
+    for game, accounts in localList['games'].items():
         if game in uploadedList['games']:
             uploadedList['games'][game].extend(accounts)
         else:
             uploadedList['games'][game] = accounts
-    with open ("merged.json",'w') as finalFile:
-        json.dump(uploadedList,finalFile,indent=4)
+    with open(MERGED_JSON, 'w') as finalFile:
+        json.dump(uploadedList, finalFile, indent=4)
 
 #Root Configs
 root = customtkinter.CTk()
@@ -49,7 +56,7 @@ def clear():
 
 def gameComboBoxGameGet():
     global gameValue
-    with open("merged.json", "r") as jsonFile:
+    with open(MERGED_JSON, "r") as jsonFile:
         data = json.load(jsonFile)
     gameValue = list(data["games"].keys())
 
@@ -72,7 +79,7 @@ def menuBar():
 def selectionPage():
     mergeFiles()
     def getInfo(choice):
-        with open('merged.json','r') as jsonFile:
+        with open(MERGED_JSON,'r') as jsonFile:
             data = json.load(jsonFile)
             gameID = data["games"][choice][0]["ID"]
             gamePW = data["games"][choice][0]["PW"]
@@ -96,7 +103,7 @@ def selectionPage():
     def startGame():
         game = comboBox.get()
         if game != "Choose a Game":
-            with open('merged.json','r') as files:
+            with open(MERGED_JSON,'r') as files:
                 data = json.load(files)
                 location = data['games'][game][0]['LC']
                 if (location != ""):
@@ -153,12 +160,12 @@ def gameAddPage():
             CTkMessagebox(title="Error",message="Enter full information about game!",icon="warning")
         else:
 
-            mainfile = open('local.json')
+            mainfile = open(LOCAL_JSON)
             data = json.load(mainfile)
 
             data["games"][name] = [{"ID":userID,"PW":userPW,"Platform":gamePlatform,"LC":""}]
 
-            with open('local.json','w') as jsonfile:
+            with open(LOCAL_JSON,'w') as jsonfile:
                 json.dump(data,jsonfile,
                         indent=4,
                         separators=(',',': '))
@@ -213,12 +220,12 @@ def locationPage():
                 CTkMessagebox(title="Error",message="You need to choose location also.",icon="warning")
 
             else:
-                with open('merged.json','r') as files:
+                with open(MERGED_JSON,'r') as files:
                     data = json.load(files)
                 #game  = combobox.get()
                 data["games"][game][0]['LC'] = fileLocation
 
-                with open('merged.json','w') as files:
+                with open(MERGED_JSON,'w') as files:
                     json.dump(data,files,indent=2)
                 CTkMessagebox(title="Successful!",message="Location replaced successfully!",icon="check")
         else:CTkMessagebox(title="Error",message="Choose a game to replace location.",icon= 'warning')
@@ -263,13 +270,13 @@ def removePage():
             if (ans == "Yes"):
  
                 try:
-                    with open('local.json', 'r') as file:
+                    with open(LOCAL_JSON, 'r') as file:
                         data = json.load(file)
 
                     if gameName in data["games"]:
                         del data["games"][gameName]
 
-                        with open('local.json', 'w') as file:
+                        with open(LOCAL_JSON, 'w') as file:
                             json.dump(data, file, indent=4)
                         CTkMessagebox(title="Successful",message=f"{gameName} removed successfully.",icon="check")
                     else:
