@@ -31,6 +31,10 @@ def check_for_updates():
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(encrypted_file_url, headers=headers)
+
+        #test
+        print(f"Response status code: {response.status_code}")
+
         if response.status_code == 200 and response.content:
             with open(enc_file_path, "wb") as file:
                 file.write(response.content)
