@@ -1,9 +1,15 @@
 from cryptography.fernet import Fernet
+import os
 
-key = Fernet.generate_key()
+APPDATA_DIR = os.path.join(os.getenv("APPDATA"), "AccountManager")
+MERGED_JSON = os.path.join(APPDATA_DIR, "merged.json")
+
+with open("secret.key", "rb") as keyFile:
+    key = keyFile.read()
+    
 cipher_suite = Fernet(key)
 
-with open("glist.json", "rb") as file:
+with open(MERGED_JSON, "rb") as file:
     original_data = file.read()
 
 encrypted_data = cipher_suite.encrypt(original_data)
